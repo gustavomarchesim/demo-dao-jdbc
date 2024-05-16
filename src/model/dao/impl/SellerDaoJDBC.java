@@ -85,6 +85,15 @@ public class SellerDaoJDBC implements SellerDao {
         }
     }
 
+    /**
+     * Updates an existing seller in the database.
+     *
+     * @param obj The seller object to be updated. The seller's ID, name, email,
+     *            birth date, base salary, and department ID should be set in the
+     *            object
+     *            before calling this method.
+     * @throws DbException If an error occurs while executing the SQL query.
+     */
     @Override
     public void update(Seller obj) {
 
@@ -92,11 +101,13 @@ public class SellerDaoJDBC implements SellerDao {
 
         try {
 
+            // Prepare the SQL statement to update a seller in the database
             st = conn.prepareStatement(
                     "UPDATE seller "
-                            + "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? "
-                            + "WHERE Id = ?");
+                            + "SET Name =?, Email =?, BirthDate =?, BaseSalary =?, DepartmentId =? "
+                            + "WHERE Id =?");
 
+            // Set the parameters of the SQL statement
             st.setString(1, obj.getName());
             st.setString(2, obj.getEmail());
             st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
@@ -104,18 +115,53 @@ public class SellerDaoJDBC implements SellerDao {
             st.setInt(5, obj.getDepartment().getId());
             st.setInt(6, obj.getId());
 
+            // Execute the SQL statement
             st.executeUpdate();
 
         } catch (SQLException e) {
+            // If an error occurs while executing the SQL query, throw a custom exception
             throw new DbException("Error executing update: " + e.getMessage());
         } finally {
+            // Close the PreparedStatement to free up resources
             DB.closeStatement(st);
         }
     }
 
+    /**
+     * Deletes a seller from the database by their unique identifier.
+     *
+     * @param id The unique identifier of the seller to delete.
+     * @throws DbException If an error occurs while executing the SQL query.
+     */
     @Override
     public void deleteById(Integer id) {
-        throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
+
+        PreparedStatement st = null;
+
+        try {
+
+            // Prepare the SQL statement to delete a seller from the database
+            st = conn.prepareStatement(
+                    "DELETE FROM seller "
+                            + "WHERE Id = ?");
+
+            // Set the seller ID parameter in the SQL statement
+            st.setInt(1, id);
+
+            // Execute the SQL statement
+            int rows = st.executeUpdate();
+            if (rows == 0) {
+                throw new DbException("Error: ID not found in database ");
+            }
+            System.out.println("Delete ID successfully!");
+
+        } catch (SQLException e) {
+            // If an error occurs while executing the SQL query, throw a custom exception
+            throw new DbException("Error executing delete: " + e.getMessage());
+        } finally {
+            // Close the PreparedStatement to free up resources
+            DB.closeStatement(st);
+        }
     }
 
     /**
