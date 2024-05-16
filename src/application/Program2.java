@@ -11,13 +11,17 @@ public class Program2 {
     DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
 
     System.out.println("\n=== TEST 1: Department Insert ===");
-    dep = new Department(10, "Teste5");
+    dep = new Department(null, "Departamento Teste");
     departmentDao.insert(dep);
 
     System.out.println("\n=== TEST 2: Department findById ===");
     dep = departmentDao.findById(10);
     System.out.println(dep);
 
+    System.out.println("\n=== TEST 3: Department update ===");
+    dep = departmentDao.findById(10);
+    dep.setName("Teste6");
+    departmentDao.update(dep);
   }
 
 }

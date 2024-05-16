@@ -36,14 +36,13 @@ public class DepartmentDaoJDBC implements DepartmentDao {
       // Prepare the SQL statement with placeholders for the department's attributes
       st = conn.prepareStatement(
           "INSERT INTO department "
-              + "(Id, Name) "
+              + "(Name) "
               + "VALUES "
-              + "(?,?)",
+              + "(?)",
           Statement.RETURN_GENERATED_KEYS);
 
       // Set the values for the placeholders
-      st.setInt(1, obj.getId());
-      st.setString(2, obj.getName());
+      st.setString(1, obj.getName());
 
       // Execute the SQL statement and get the number of rows affected
       int rows = st.executeUpdate();
@@ -67,6 +66,28 @@ public class DepartmentDaoJDBC implements DepartmentDao {
   @Override
   public void update(Department obj) {
 
+    PreparedStatement st = null;
+
+    try {
+
+      st = conn.prepareStatement(
+          "UPDATE department " +
+              "SET Name = ? "
+              + "WHERE Id = ? ");
+
+      st.setString(1, obj.getName());
+      st.setInt(2, obj.getId());
+
+      int rows = st.executeUpdate();
+      if (rows > 0) {
+        System.out.println("Updated " + rows + " rows");
+      }
+
+    } catch (SQLException e) {
+      throw new DbException("Error executing update! " + e.getMessage());
+    } finally {
+      DB.closeStatement(st);
+    }
   }
 
   @Override
