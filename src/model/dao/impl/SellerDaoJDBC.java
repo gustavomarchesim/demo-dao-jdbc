@@ -63,6 +63,8 @@ public class SellerDaoJDBC implements SellerDao {
                 // If rows were affected, get the generated keys (in this case, the seller's ID)
                 ResultSet rs = st.getGeneratedKeys();
 
+                // If there are generated keys, get the first one (in this case, the seller's
+                // ID)
                 if (rs.next()) {
                     // Retrieves the generated seller's ID from the result set and sets it in the
                     // seller object.
@@ -150,6 +152,7 @@ public class SellerDaoJDBC implements SellerDao {
 
             // Execute the SQL statement
             int rows = st.executeUpdate();
+            
             if (rows == 0) {
                 throw new DbException("Error: ID not found in database ");
             }
