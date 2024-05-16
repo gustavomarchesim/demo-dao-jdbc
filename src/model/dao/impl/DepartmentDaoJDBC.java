@@ -75,6 +75,15 @@ public class DepartmentDaoJDBC implements DepartmentDao {
     throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
   }
 
+  /**
+   * Finds a department by its unique identifier in the database.
+   *
+   * @param id The unique identifier of the department to be found.
+   * @return The department object with the specified identifier, or null if no
+   *         such department exists.
+   * @throws DbException If an error occurs while executing the SQL query or
+   *                     handling the result set.
+   */
   @Override
   public Department findById(Integer id) {
 
@@ -83,24 +92,34 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
     try {
 
+      // Prepare the SQL statement with a placeholder for the department's identifier
       st = conn.prepareStatement(
           "SELECT * FROM department "
-              + "WHERE Id = ?");
+              + "WHERE Id =?");
+
+      // Set the value for the placeholder
       st.setInt(1, id);
 
+      // Execute the SQL statement and retrieve the result set
       rs = st.executeQuery();
 
+      // If a row is returned, create a new Department object and populate it with the
+      // data from the result set
       if (rs.next()) {
         Department dep = new Department();
         dep.setId(rs.getInt("Id"));
         dep.setName(rs.getString("Name"));
         return dep;
       }
+
+      // If no row is returned, return null
       return null;
 
     } catch (SQLException e) {
+      // If an error occurs, throw a custom exception
       throw new DbException(e.getMessage());
     } finally {
+      // Close the prepared statement and result set to free up resources
       DB.closeStatement(st);
       DB.closeResultSet(rs);
     }
