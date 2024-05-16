@@ -25,19 +25,16 @@ public class SellerDaoJDBC implements SellerDao {
 
     @Override
     public void insert(Seller obj) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'insert'");
     }
 
     @Override
     public void update(Seller obj) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
 
     @Override
     public void deleteById(Integer id) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
     }
 
@@ -59,6 +56,7 @@ public class SellerDaoJDBC implements SellerDao {
             // Prepare the SQL statement to retrieve a seller by their unique identifier
             st = conn.prepareStatement(
                     "SELECT seller.*,department.Name as DepName "
+
                             + "FROM seller INNER JOIN department "
                             + "ON seller.DepartmentId = department.Id "
                             + "WHERE seller.Id =?");
@@ -132,10 +130,69 @@ public class SellerDaoJDBC implements SellerDao {
         return dep;
     }
 
+    /**
+     * This method retrieves all sellers from the database.
+     *
+     * @return A list of all sellers, where each seller is associated with a
+     *         department.
+     * @throws DbException If an error occurs while executing the SQL query.
+     */
     @Override
     public List<Seller> findAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+
+            // Prepare the SQL statement to retrieve all seller's information and sort them
+            // by name.
+            st = conn.prepareStatement(
+                    "SELECT seller.*,department.Name as DepName "
+                            + "FROM seller INNER JOIN department "
+                            + "ON seller.DepartmentId = department.Id "
+                            + "ORDER BY Name");
+
+            // Execute the SQL query and retrieve the result set
+            rs = st.executeQuery();
+
+            // Initialize a list to store the sellers and a map to store unique departments
+            List<Seller> list = new ArrayList<>();
+            Map<Integer, Department> map = new HashMap<>();
+
+            // Iterate through the result set and create Seller objects
+            while (rs.next()) {
+
+                // Retrieve the department from the map or create a new one if it doesn't exist
+                Department dep = map.get(rs.getInt("DepartmentId"));
+
+                if (dep == null) {
+                    dep = instantiateDepartment(rs);
+                    map.put(rs.getInt("DepartmentId"), dep);
+                }
+
+                // Create a Seller object and add it to the list
+                Seller obj = instantiateSeller(rs, dep);
+                list.add(obj);
+
+            }
+
+            // Return the list of sellers
+            return list;
+
+        } catch (SQLException e) {
+
+            // Throw a custom exception if an error occurs while executing the SQL query
+            throw new DbException(e.getMessage());
+
+        } finally {
+
+            // Close the statement and result set to free up resources
+            DB.closeStatement(st);
+            DB.closeResultSet(rs);
+
+        }
+
     }
 
     /**

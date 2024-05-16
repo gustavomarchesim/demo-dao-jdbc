@@ -7,5 +7,5 @@
         "lib/**/*.jar",
         "/usr/share/java/mysql-connector-java.jar",
         "/usr/share/java/mysql-connector-j.jar"
-    ]
+    ],
 }
