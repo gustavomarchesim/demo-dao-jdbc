@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +24,65 @@ public class SellerDaoJDBC implements SellerDao {
         this.conn = conn;
     }
 
+    /**
+     * Inserts a new seller into the database.
+     *
+     * @param obj The seller object to be inserted. The seller's ID, name, email,
+     *            birth date, base salary,
+     *            and department ID should be set in the object before calling this
+     *            method.
+     * @throws DbException If an error occurs while executing the SQL query or if no
+     *                     rows are affected.
+     */
     @Override
     public void insert(Seller obj) {
-        throw new UnsupportedOperationException("Unimplemented method 'insert'");
+
+        PreparedStatement st = null;
+
+        try {
+            // Prepare the SQL statement to insert a new seller into the database
+            st = conn.prepareStatement(
+                    "INSERT INTO seller "
+                            + "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+                            + "VALUES "
+                            + "(?,?,?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS);
+
+            // Set the parameters of the SQL statement
+            st.setString(1, obj.getName());
+            st.setString(2, obj.getEmail());
+            st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+            st.setDouble(4, obj.getBaseSalary());
+            st.setInt(5, obj.getDepartment().getId());
+
+            // Execute the SQL statement and get the number of rows affected
+            int rowsAffected = st.executeUpdate();
+
+            if (rowsAffected > 0) {
+
+                // If rows were affected, get the generated keys (in this case, the seller's ID)
+                ResultSet rs = st.getGeneratedKeys();
+
+                if (rs.next()) {
+                    // Retrieves the generated seller's ID from the result set and sets it in the
+                    // seller object.
+                    int id = rs.getInt(1);
+                    // Set the seller's ID in the object
+                    obj.setId(id);
+                }
+                // Close the ResultSet to free up resources
+                DB.closeResultSet(rs);
+            } else {
+                // If no rows were affected, throw a custom exception
+                throw new DbException("Unexpected error! No rows affected");
+            }
+        } catch (SQLException e) {
+            // If an error occurs while executing the SQL query, throw a custom exception
+            throw new DbException(e.getMessage());
+        } finally {
+            // Close the PreparedStatement to free up resources
+            DB.closeStatement(st);
+        }
     }
 
     @Override
