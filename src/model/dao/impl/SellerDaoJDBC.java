@@ -152,7 +152,7 @@ public class SellerDaoJDBC implements SellerDao {
 
             // Execute the SQL statement
             int rows = st.executeUpdate();
-            
+
             if (rows == 0) {
                 throw new DbException("Error: ID not found in database ");
             }
@@ -185,7 +185,6 @@ public class SellerDaoJDBC implements SellerDao {
             // Prepare the SQL statement to retrieve a seller by their unique identifier
             st = conn.prepareStatement(
                     "SELECT seller.*,department.Name as DepName "
-
                             + "FROM seller INNER JOIN department "
                             + "ON seller.DepartmentId = department.Id "
                             + "WHERE seller.Id =?");

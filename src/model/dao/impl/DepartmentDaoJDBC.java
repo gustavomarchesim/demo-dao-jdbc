@@ -2,6 +2,7 @@ package model.dao.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -19,6 +20,12 @@ public class DepartmentDaoJDBC implements DepartmentDao {
     this.conn = conn;
   }
 
+  /**
+   * Inserts a new department into the database.
+   *
+   * @param obj The department object to be inserted.
+   * @throws DbException If an error occurs while inserting the department.
+   */
   @Override
   public void insert(Department obj) {
 
@@ -26,18 +33,22 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
     try {
 
+      // Prepare the SQL statement with placeholders for the department's attributes
       st = conn.prepareStatement(
           "INSERT INTO department "
               + "(Id, Name) "
               + "VALUES "
-              + "(?, ?)",
+              + "(?,?)",
           Statement.RETURN_GENERATED_KEYS);
 
+      // Set the values for the placeholders
       st.setInt(1, obj.getId());
       st.setString(2, obj.getName());
 
+      // Execute the SQL statement and get the number of rows affected
       int rows = st.executeUpdate();
 
+      // Check if the insertion was successful
       if (rows > 0) {
         System.out.println("Insert succeeded! Rows affected: " + rows);
       } else {
@@ -45,16 +56,17 @@ public class DepartmentDaoJDBC implements DepartmentDao {
       }
 
     } catch (SQLException e) {
+      // If an error occurs, throw a custom exception
       throw new DbException(e.getMessage());
     } finally {
+      // Close the prepared statement to free up resources
       DB.closeStatement(st);
     }
   }
 
   @Override
   public void update(Department obj) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'update'");
+
   }
 
   @Override
@@ -65,8 +77,33 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
   @Override
   public Department findById(Integer id) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'findById'");
+
+    PreparedStatement st = null;
+    ResultSet rs = null;
+
+    try {
+
+      st = conn.prepareStatement(
+          "SELECT * FROM department "
+              + "WHERE Id = ?");
+      st.setInt(1, id);
+
+      rs = st.executeQuery();
+
+      if (rs.next()) {
+        Department dep = new Department();
+        dep.setId(rs.getInt("Id"));
+        dep.setName(rs.getString("Name"));
+        return dep;
+      }
+      return null;
+
+    } catch (SQLException e) {
+      throw new DbException(e.getMessage());
+    } finally {
+      DB.closeStatement(st);
+      DB.closeResultSet(rs);
+    }
   }
 
   @Override
