@@ -63,6 +63,14 @@ public class DepartmentDaoJDBC implements DepartmentDao {
     }
   }
 
+  /**
+   * Updates an existing department in the database.
+   *
+   * @param obj The department object to be updated. The object must contain the
+   *            department's unique identifier (Id) and the new name.
+   * @throws DbException If an error occurs while executing the SQL query or
+   *                     handling the result set.
+   */
   @Override
   public void update(Department obj) {
 
@@ -70,22 +78,29 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
     try {
 
+      // Prepare the SQL statement with placeholders for the department's attributes
       st = conn.prepareStatement(
           "UPDATE department " +
-              "SET Name = ? "
-              + "WHERE Id = ? ");
+              "SET Name =? " +
+              "WHERE Id =? ");
 
+      // Set the values for the placeholders
       st.setString(1, obj.getName());
       st.setInt(2, obj.getId());
 
+      // Execute the SQL statement and get the number of rows affected
       int rows = st.executeUpdate();
+
+      // Check if the update was successful
       if (rows > 0) {
         System.out.println("Updated " + rows + " rows");
       }
 
     } catch (SQLException e) {
+      // If an error occurs, throw a custom exception
       throw new DbException("Error executing update! " + e.getMessage());
     } finally {
+      // Close the prepared statement to free up resources
       DB.closeStatement(st);
     }
   }

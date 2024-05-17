@@ -23,5 +23,4 @@ public class Program2 {
     dep.setName("Teste6");
     departmentDao.update(dep);
   }
-
 }
