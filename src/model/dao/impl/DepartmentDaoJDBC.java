@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import db.DB;
@@ -105,10 +106,43 @@ public class DepartmentDaoJDBC implements DepartmentDao {
     }
   }
 
+  /**
+   * Deletes a department from the database by its unique identifier.
+   *
+   * @param id The unique identifier of the department to be deleted.
+   * @throws DbException If an error occurs while executing the SQL query or
+   *                     handling the result set.
+   *                     If the department with the specified id does not exist,
+   *                     throws an exception.
+   */
   @Override
   public void deleteById(Integer id) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
+
+    PreparedStatement st = null;
+
+    try {
+      // Prepare the SQL statement to delete a department by its unique identifier.
+      st = conn.prepareStatement(
+          "DELETE FROM department "
+              + "WHERE Id =?");
+      st.setInt(1, id);
+      // Execute the SQL statement and get the number of rows affected
+      int rows = st.executeUpdate();
+
+      // If no rows were deleted, it means the department with the specified id does
+      // not exist.
+      if (rows == 0) {
+        throw new DbException("Unexpected error! Id not found!");
+      }
+      System.out.println("Success! ID deleted!");
+
+    } catch (SQLException e) {
+      // If an error occurs, throw a custom exception with the error message.
+      throw new DbException(e.getMessage());
+    } finally {
+      // Close the prepared statement to free up resources.
+      DB.closeStatement(st);
+    }
   }
 
   /**
@@ -163,8 +197,7 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
   @Override
   public List<Department> findAll() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+    // TODO implement this method
+    return null;
   }
-
 }
