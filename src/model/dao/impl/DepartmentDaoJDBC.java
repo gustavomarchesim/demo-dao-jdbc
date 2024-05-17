@@ -195,33 +195,51 @@ public class DepartmentDaoJDBC implements DepartmentDao {
     }
   }
 
+  /**
+   * Retrieves a list of all departments from the database.
+   *
+   * @return A list of Department objects, or an empty list if no departments
+   *         exist.
+   * @throws DbException If an error occurs while executing the SQL query or
+   *                     handling the result set.
+   */
   @Override
   public List<Department> findAll() {
-    // TODO implement this method
 
     PreparedStatement st = null;
     ResultSet rs = null;
 
     try {
 
+      // Prepare the SQL statement to select all departments ordered by name
       st = conn.prepareStatement(
           "SELECT * FROM department "
               + " ORDER BY Name");
+
+      // Execute the SQL statement and retrieve the result set
       rs = st.executeQuery();
 
+      // Create a new ArrayList to store the Department objects
       List<Department> list = new ArrayList<>();
 
+      // Iterate through the result set and create Department objects for each row
       while (rs.next()) {
         Department dep = new Department();
         dep.setId(rs.getInt("Id"));
         dep.setName(rs.getString("Name"));
+
+        // Add the Department object to the list
         list.add(dep);
       }
+
+      // Return the list of Department objects
       return list;
 
     } catch (Exception e) {
+      // If an error occurs, throw a custom exception with the error message
       throw new DbException(e.getMessage());
     } finally {
+      // Close the prepared statement and result set to free up resources
       DB.closeStatement(st);
       DB.closeResultSet(rs);
     }
